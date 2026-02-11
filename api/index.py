@@ -5,6 +5,12 @@ import yt_dlp
 app = Flask(__name__)
 CORS(app)
 
+# 1. Added this to test if the API is working
+@app.route('/')
+def home():
+    return "API is Online! Please use /api?url=LINK to download."
+
+# 2. Flexible route for the API
 @app.route('/api', methods=['GET'])
 def download():
     url = request.args.get('url')
@@ -24,7 +30,7 @@ def download():
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            # Try to find video link or photo link
+            # Find the direct link
             link = info.get('url') or (info.get('entries') and info['entries'][0].get('url'))
             
             if link:
@@ -32,4 +38,4 @@ def download():
             else:
                 return jsonify({"status": "error", "message": "Could not find file"}), 404
     except Exception as e:
-        return jsonify({"status": "error", "message": "Instagram Blocked"}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
